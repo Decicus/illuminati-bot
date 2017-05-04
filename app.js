@@ -86,8 +86,7 @@ const handleMessage = (msg, after) => {
     msg.attachments.forEach((att) => {
         data.attachments[att.id] = {
             name: att.filename,
-            originalUrl: att.url,
-            url: att.proxyURL,
+            url: att.url,
             size: att.filesize
         }
     });
@@ -122,6 +121,10 @@ process.on('SIGINT', () => {
     .catch((err) => {
         if (err) {
             log(err, 'error');
+            process.exit(1);
         }
+    })
+    .then(() => {
+        process.exit(0);
     });
 });
