@@ -1,0 +1,26 @@
+indexes:
+
+- kind: logs
+  properties:
+  - name: timestamp
+    direction: desc
+  - name: type
+
+- kind: messages
+  properties:
+  - name: channel_id
+  - name: user_id
+  - name: timestamp
+    direction: desc
+
+- kind: messages
+  properties:
+  - name: user_id
+  - name: timestamp
+    direction: desc
+
+- kind: messages
+  properties:
+  - name: channel_id
+  - name: timestamp
+    direction: desc
