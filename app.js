@@ -121,8 +121,9 @@ process.on('SIGINT', () => {
     .catch((err) => {
         if (err) {
             log(err, 'error');
-            process.exit(1);
         }
+
+        process.exit(1);
     })
     .then(() => {
         process.exit(0);
