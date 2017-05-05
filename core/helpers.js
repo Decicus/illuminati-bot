@@ -95,4 +95,20 @@ _.userName = (user) => {
     return `${user.username}#${user.discriminator}`;
 };
 
+/**
+ * Sends a response via the Express object
+ *
+ * @param  {Object} res    The Express Response object.
+ * @param  {Number} status HTTP status code
+ * @param  {Mixed} body    The body
+ * @return {Void}
+ */
+_.send = (res, status, body) => {
+    if (typeof body === 'object') {
+        body.status = status;
+    }
+
+    res.status(status).send(body);
+};
+
 module.exports = _;

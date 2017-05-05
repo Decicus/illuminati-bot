@@ -2,10 +2,13 @@
 const config = require('./config');
 const discordjs = require('discord.js');
 const datastore = require('@google-cloud/datastore')(config.gcloud);
+
 const log = require('./core/log');
 const _ = require('./core/helpers');
 
 const client = new discordjs.Client();
+
+const botAuthUrl = `https://discordapp.com/oauth2/authorize?client_id=${config.discord.botClientId}&scope=bot&permissions=84992`;
 
 let ignore = {
     channels: [],
@@ -15,6 +18,15 @@ const readIgnore = _.readFile(config.settings.ignore);
 if (readIgnore !== false) {
     ignore = JSON.parse(readIgnore);
     log(`Successfully read the ignore file (${config.settings.ignore}).`);
+}
+
+let settings = {
+    allowedUsers: []
+};
+const readSettings = _.readFile(config.settings.settings);
+if (readSettings !== false) {
+    settings = JSON.parse(readSettings);
+    log(`Successfully read the settings file (${config.settings.settings}).`);
 }
 
 const messageKind = config.settings.gcloud.messages;
@@ -41,20 +53,46 @@ const handleMessage = (msg, after) => {
     }
 
     const mentions = msg.mentions;
+    const msgMentions = {
+        channels: {},
+        roles: {},
+        users: {}
+    };
+
     let content = msg.content;
-    mentions.users.forEach((user) => {
-        const reg = new RegExp(`<@${user.id}>`, 'g');
-        content.replace(reg, `<${_.userName(user)} [${user.id}]>`);
-    });
 
     mentions.channels.forEach((channel) => {
-        const reg = new RegExp(`<#${channel.id}>`, 'g');
-        content.replace(reg, `#${channel.name}`);
+        const {id, name} = channel;
+        const reg = new RegExp(`<#${id}>`, 'g');
+        content = content.replace(reg, `#${name}`);
+
+        msgMentions.channels[id] = {
+            id,
+            name,
+        };
     });
 
     mentions.roles.forEach((role) => {
+        const {id, name} = role;
         const reg = new RegExp(`<@&${role.id}>`, 'g');
-        content.replace(reg, `@${role.name}`);
+        content = content.replace(reg, `@${role.name}`);
+
+        msgMentions.roles[id] = {
+            id,
+            name,
+        };
+    });
+
+    mentions.users.forEach((user) => {
+        const {id, username, discriminator} = user;
+        const reg = new RegExp(`<@${id}>`, 'g');
+        content = content.replace(reg, `<${_.userName(user)} [${id}]>`);
+
+        msgMentions.users[id] = {
+            id,
+            username,
+            discriminator
+        };
     });
 
     const server = msg.guild;
@@ -72,6 +110,11 @@ const handleMessage = (msg, after) => {
             id: channel.id,
             name: channel.name
         },
+        mentions: msgMentions,
+        messageMeta: {
+            content: msg.content,
+            cleanContent: msg.cleanContent
+        },
         server: {
             id: server.id,
             name: server.name
@@ -88,7 +131,7 @@ const handleMessage = (msg, after) => {
             name: att.filename,
             url: att.url,
             size: att.filesize
-        }
+        };
     });
 
     const key = datastore.key([messageKind, `${msg.id}-${timestamp}`]);
@@ -113,6 +156,122 @@ client.on('warn', (warning) => {
 });
 
 client.login(config.discord.token);
+
+/**
+ * Web interface
+ */
+const express = require('express');
+const passport = require('passport');
+const session = require('express-session');
+const DiscordStrategy = require('passport-discord').Strategy;
+const auth = config.discord;
+const web = express();
+
+const scopes = ['identify'];
+passport.serializeUser((user, done) => {
+    done(null, user);
+});
+passport.deserializeUser((obj, done) => {
+    done(null, obj);
+});
+
+passport.use(new DiscordStrategy({
+    clientID: auth.clientId,
+    clientSecret: auth.clientSecret,
+    callbackURL: auth.redirectUri,
+    scope: scopes
+}, (accessToken, refreshToken, profile, done) => {
+    return done(null, profile);
+}));
+
+web.use(session({
+    secret: auth.clientSecret,
+    resave: false,
+    saveUninitialized: false
+}));
+web.use(passport.initialize());
+web.use(passport.session());
+
+// TODO: Setup views and all that.
+web.get('/', (req, res) => {
+    res.send('Hello world!');
+});
+
+web.get('/auth/discord', passport.authenticate('discord', {scope: scopes}), () => {});
+
+web.get('/auth/discord/callback', passport.authenticate('discord', {
+    failureRedirect: '/'
+}), (req, res) => {
+    res.redirect('/');
+});
+
+web.get('/logout', function(req, res) {
+    req.logout();
+    res.redirect('/');
+});
+
+const api = express.Router();
+api.use((req, res, next) => {
+    if (!req.session.passport || !req.session.passport.user) {
+        _.send(res, 403, {
+            message: "Requires authentication."
+        });
+        return;
+    }
+
+    const id = req.session.passport.user.id;
+    if (!settings.allowedUsers.includes(id) && !config.discord.admins.includes(id)) {
+        _.send(res, 403, {
+            message: "User does not have access."
+        });
+        return;
+    }
+
+    next();
+});
+
+api.get('/messages', (req, res) => {
+    const q = req.query;
+    let user = q.user || "";
+    let channel = q.channel || "";
+    const limit = q.limit ? parseInt(q.limit) : 25;
+    const offset = q.offset ? parseInt(q.offset) : 0;
+    const max = config.settings.express.maxLimit || 50;
+
+    if (limit > max) {
+        _.send(res, 400, {
+            message: `The "limit" specified (${limit}) is higher than maximum (${max}) allowed.`
+        });
+
+        return;
+    }
+
+    user = user.trim();
+    channel = channel.trim();
+
+    if (user.length === 0 && channel.length === 0) {
+        _.send(res, 400, {
+            message: "Either a Discord channel ID or a Discord user ID has to be specified."
+        });
+
+        return;
+    }
+
+    // TODO: Retrieve messages and display
+});
+
+web.use('/api', api);
+
+const expressConf = config.settings.express;
+if (expressConf.enabled) {
+    web.listen(expressConf.port, (err) => {
+        if (err) {
+            log(err, 'error');
+        }
+
+        log(`Listening on port ${expressConf.port}`);
+    });
+}
 
 process.on('SIGINT', () => {
     log('Logging out of Discord and shutting down process.');
