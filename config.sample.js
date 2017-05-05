@@ -12,21 +12,21 @@ config.discord = {
      *
      * @type {Array}
      */
-    admins: ['81332863928119296'],
+    admins: ['81332863928119296', '66271559538446336', '99787077444464640', '89332412911210496', '140911637321351168', '99618921019117568', '141813591459364864', '99655085218336768'],
 
     /**
      * The Discord client ID for authentication with the web interface.
      *
      * @type {String}
      */
-    authClientId: '',
+    clientId: '',
 
     /**
      * The Discord client secret for authentication.
      *
      * @type {String}
      */
-    authClientSecret: '',
+    clientSecret: '',
 
     /**
      * The Discord authentication redirect URI.
