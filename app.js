@@ -220,9 +220,12 @@ api.use((req, res, next) => {
     }
 
     const id = req.session.passport.user.id;
-    if (!settings.allowedUsers.includes(id) && !config.discord.admins.includes(id)) {
+    const allowedUser = settings.allowedUsers.includes(id);
+    const isAdmin = config.discord.admins.includes(id);
+
+    if (!allowedUser && !isAdmin) {
         _.send(res, 403, {
-            message: "User does not have access."
+            message: "You do not have access."
         });
         return;
     }
@@ -251,13 +254,51 @@ api.get('/messages', (req, res) => {
 
     if (user.length === 0 && channel.length === 0) {
         _.send(res, 400, {
-            message: "Either a Discord channel ID or a Discord user ID has to be specified."
+            message: "Either a Discord channel ID or a Discord user ID (or both) has to be specified."
         });
 
         return;
     }
 
     // TODO: Retrieve messages and display
+    let query = datastore.createQuery(messageKind);
+
+    if (user.length > 0) {
+        query = query.filter('user_id', '=', user);
+    }
+
+    if (channel.length > 0) {
+        query = query.filter('channel_id', '=', channel);
+    }
+
+    query = query
+            .offset(offset)
+            .limit(limit)
+            .order('timestamp', {
+                descending: true
+            });
+
+    datastore.runQuery(query, (err, messages) => {
+        if (err) {
+            log(err, 'error');
+            _.send(res, 500, {
+                message: "An error occurred and has been logged."
+            });
+
+            return;
+        }
+
+        _.send(res, 200, {
+            count: messages.length,
+            messages: messages
+        });
+    });
+});
+
+api.get('/*', (req, res) => {
+    _.send(res, 404, {
+        message: "Route not found"
+    });
 });
 
 web.use('/api', api);

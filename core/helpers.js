@@ -108,6 +108,8 @@ _.send = (res, status, body) => {
         body.status = status;
     }
 
+    body.success = (status === 200);
+
     res.status(status).send(body);
 };
 
