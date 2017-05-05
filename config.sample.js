@@ -15,11 +15,32 @@ config.discord = {
     admins: ['81332863928119296'],
 
     /**
-     * The Discord client ID
+     * The Discord client ID for authentication with the web interface.
      *
      * @type {String}
      */
-    clientId: '',
+    authClientId: '',
+
+    /**
+     * The Discord client secret for authentication.
+     *
+     * @type {String}
+     */
+    authClientSecret: '',
+
+    /**
+     * The Discord authentication redirect URI.
+     *
+     * @type {String}
+     */
+    redirectUri: 'http://localhost:8000/auth/discord/callback',
+
+    /**
+     * The Discord client ID for adding the bot to servers.
+     *
+     * @type {String}
+     */
+    botClientId: '',
 
     /**
      * The Discord bot token
@@ -72,8 +93,25 @@ config.settings = {
      * @type {Object}
      */
     express: {
+        /**
+         * If the Express web server is enabled or not.
+         *
+         * @type {Boolean}
+         */
         enabled: false,
-        port: 8000
+
+        /**
+         * The port Express should listen to.
+         * @type {Number}
+         */
+        port: 8000,
+
+        /**
+         * The maximum amount of messages allowed to request through the Express API.
+         *
+         * @type {Number}
+         */
+        maxLimit: 50
     },
 
     /**
