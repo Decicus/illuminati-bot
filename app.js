@@ -161,12 +161,14 @@ client.login(config.discord.token);
  * Web interface
  */
 const express = require('express');
+const twig = require('twig');
 const passport = require('passport');
 const session = require('express-session');
 const DiscordStrategy = require('passport-discord').Strategy;
 const auth = config.discord;
 const web = express();
 
+// Passport/auth sessions setup
 const scopes = ['identify'];
 passport.serializeUser((user, done) => {
     done(null, user);
@@ -192,9 +194,16 @@ web.use(session({
 web.use(passport.initialize());
 web.use(passport.session());
 
+// Twig setup
+web.set('views', __dirname + '/views');
+web.set('view engine', 'html');
+web.engine('html', twig.__express);
+
 // TODO: Setup views and all that.
 web.get('/', (req, res) => {
-    res.send('Hello world!');
+    res.render('home', {
+        page: 'Home'
+    });
 });
 
 web.get('/auth/discord', passport.authenticate('discord', {scope: scopes}), () => {});
@@ -260,7 +269,6 @@ api.get('/messages', (req, res) => {
         return;
     }
 
-    // TODO: Retrieve messages and display
     let query = datastore.createQuery(messageKind);
 
     if (user.length > 0) {
