@@ -13,12 +13,25 @@
     <nav class="navbar navbar-default" role="navigation">
         <div class="container-fluid">
             <div class="navbar-header">
-                <a class="navbar-brand" href="#"><i class="fa fa-1x fa-home"></i> Illuminati Bot</a>
+                <a class="navbar-brand" href="#">Illuminati Bot</a>
             </div>
 
             <ul class="nav navbar-nav">
-                <li><a href="#"><i class="fa fa-1x fa-home"></i> Home</a></li>
+                <li><a href="#" class="active"><i class="fa fa-1x fa-home"></i> Home</a></li>
                 <li><a href="https://github.com/Decicus/illuminati-bot"><i class="fa fa-1x fa-github"></i> GitHub</a></li>
+            </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                {% if user is not empty %}
+                    <div class="dropdown">
+                        <button type="button" class="btn btn-default navbar-btn dropdown-toggle" id="accountDropdown" data-toggle="dropdown" aria-expanded="true"><i class="fa fa-user fa-1x"></i> {{ user.username }}#{{ user.discriminator }} <span class="caret"></span></button>
+                        <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="accountDropdown">
+                            <li role="presentation"><a role="menuitem" href="/auth/logout"><i class="fa fa-sign-out fa-1x"></i> Log out</a></li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <li><a href="/auth/discord">Connect with Discord</a></li>
+                {% endif %}
             </ul>
         </div>
     </nav>

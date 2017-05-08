@@ -221,7 +221,7 @@ web.get('/auth/discord/callback', passport.authenticate('discord', {
     res.redirect('/');
 });
 
-web.get('/logout', function(req, res) {
+web.get('/auth/logout', function(req, res) {
     req.logout();
     res.redirect('/');
 });
