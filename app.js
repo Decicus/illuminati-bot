@@ -73,11 +73,13 @@ const handleMessage = (msg, after) => {
     });
 
     mentions.roles.forEach((role) => {
-        const {id, name} = role;
+        const {color, hexColor, id, name} = role;
         const reg = new RegExp(`<@&${role.id}>`, 'g');
         content = content.replace(reg, `@${role.name}`);
 
         msgMentions.roles[id] = {
+            color,
+            hexColor,
             id,
             name,
         };
