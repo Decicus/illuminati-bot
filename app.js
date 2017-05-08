@@ -122,9 +122,14 @@ const handleMessage = (msg, after) => {
             name: server.name
         },
         user: {
+            avatar: user.avatar,
+            avatarUrl: user.avatarURL,
+            bot: user.bot,
+            createdAt: user.createdTimestamp,
+            defaultAvatarUrl: defaultAvatarURL,
+            discriminator: user.discriminator,
             id: user.id,
-            name: user.username,
-            discriminator: user.discriminator
+            name: user.username
         }
     };
 
@@ -202,7 +207,7 @@ web.set('view engine', 'html');
 web.engine('html', twig.__express);
 web.use('/static', express.static('static'));
 
-// TODO: Setup views and all that.
+// Routes
 web.get('/', (req, res) => {
     const data = {
         page: 'Home'
@@ -226,6 +231,7 @@ web.get('/auth/logout', function(req, res) {
     res.redirect('/');
 });
 
+// API routes
 const api = express.Router();
 api.use((req, res, next) => {
     if (!req.session.passport || !req.session.passport.user) {
