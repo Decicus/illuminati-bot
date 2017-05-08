@@ -244,6 +244,32 @@ api.use((req, res, next) => {
     next();
 });
 
+api.get('/channels', (req, res) => {
+    const channels = client.channels;
+    const validChannels = {};
+
+    channels.forEach((chan) => {
+        if (chan.type !== 'text') {
+            return;
+        }
+
+        const {id, name} = chan;
+        const g = chan.guild;
+
+        validChannels[id] = {
+            name,
+            guild: {
+                id: g.id,
+                name: g.name
+            }
+        };
+    });
+
+    _.send(res, 200, {
+        channels: validChannels
+    });
+});
+
 api.get('/messages', (req, res) => {
     const q = req.query;
     let user = q.user || "";
