@@ -2,156 +2,60 @@
 
 {% block main %}
 <div class="jumbotron">
-    <div class="form-group">
-        <button type="button" class="btn btn-success pull-right disabled" id="refresh">
-            <i class="fa fa-1x fa-spinner"></i> Refresh
-        </button>
-    </div>
+    {% if user is not empty %}
+        <div class="form-group">
+            <button type="button" class="btn btn-success pull-right disabled" id="refresh">
+                <i class="fa fa-1x fa-spinner"></i> Refresh
+            </button>
+        </div>
 
-    <div class="form-group">
-        <label for="channel"><i class="fa fa-1x fa-list"></i> Channel:</label>
-        <select class="form-control" id="channel">
-            <option selected="" value="">Select channel</option>
-        </select>
-    </div>
+        <br>
 
-    <div class="form-group">
-        <label for="user"><i class="fa fa-1x fa-search"></i> User ID:</label>
-        <input type="text" class="form-control" id="user" />
-    </div>
+        <div class="form-group">
+            <label for="channel"><i class="fa fa-1x fa-list"></i> Channel:</label>
+            <select class="form-control" id="channel">
+                <option selected="" value="">Select channel</option>
+            </select>
+        </div>
 
-    <div class="form-group">
-        <label for="limit"><i class="fa fa-sort-numeric-asc fa-1x"></i> Maximum number of messages:</label>
-        <input type="number" class="form-control" step="1" min="1" value="25" id="limit" onchange="update();">
-    </div>
+        <div class="form-group">
+            <label for="user"><i class="fa fa-1x fa-search"></i> User ID:</label>
+            <input type="text" class="form-control" id="user" />
+        </div>
 
-    <div class="form-group">
-        <label for="offset"><i class="fa fa-sort-numeric-desc fa-1x"></i> Amount of messages to offset by:</label>
-        <input type="number" class="form-control" step="1" min="0" value="0" id="offset" onchange="update();">
-    </div>
+        <div class="form-group">
+            <label for="limit"><i class="fa fa-sort-numeric-asc fa-1x"></i> Maximum number of messages:</label>
+            <input type="number" class="form-control" step="1" min="1" value="25" id="limit">
+        </div>
 
-    <div class="alert alert-danger hidden" id="error"></div>
+        <div class="form-group">
+            <label for="offset"><i class="fa fa-sort-numeric-desc fa-1x"></i> Amount of messages to offset by:</label>
+            <input type="number" class="form-control" step="1" min="0" value="0" id="offset">
+        </div>
 
-    <div class="hidden alert alert-success"><i class="fa fa-comments-o fa-1x"></i> Retrieved <strong id="count"></strong> messages</div>
-    <table id="messages" class="table table-bordered hidden">
-        <thead>
-            <tr>
-                <th>Date &amp; time (UTC):</th>
-                <th>Channel:</th>
-                <th>Display name:</th>
-                <th>Message:</th>
-            </tr>
-        </thead>
+        <div class="alert alert-danger hidden" id="error"></div>
 
-        <tbody></tbody>
-    </table>
+        <div class="hidden alert alert-success"><i class="fa fa-comments-o fa-1x"></i> Retrieved <strong id="count"></strong> messages</div>
+        <table id="messages" class="table table-bordered hidden">
+            <thead>
+                <tr>
+                    <th>Date &amp; time:</th>
+                    <th>Channel:</th>
+                    <th>Display name:</th>
+                    <th>Message:</th>
+                </tr>
+            </thead>
+
+            <tbody></tbody>
+        </table>
+    {% else %}
+        <p class="text-info">Please <a href="/auth/discord">log in with Discord</a>.</p>
+    {% endif %}
 </div>
 {% endblock %}
 
 {% block scripts %}
-    <script type="text/javascript">
-        /**
-         * HTML-encodes certain characters
-         *
-         * @param  {String} str The string to encode
-         * @return {String}     The encoded string
-         */
-        const htmlEntities = (str) =>
-        {
-            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-        };
-
-        /**
-         * Gets the value from the selector and trims it.
-         *
-         * @param  {String} selector The selector jQuery should look for.
-         * @return {String}          The string value from the selector.
-         */
-        const value = (selector) =>
-        {
-            return $(selector).val().trim();
-        };
-
-        /**
-         * Fills the error box with the specified value.
-         *
-         * @param  {String} error The error to fill in with.
-         * @return {Void}
-         */
-        const error = (err) =>
-        {
-            const element = $('#error');
-            if (element.hasClass('hidden')) {
-                element.removeClass('hidden');
-            }
-
-            element.html(err);
-        };
-
-        /**
-         * The rest of update() only runs if this is false.
-         *
-         * @type {Boolean}
-         */
-        let updating = false;
-
-        const update = () =>
-        {
-            if (updating) {
-                error('You are already requesting messages. Please wait until the previous request has finished before requesting more messages.');
-                return;
-            }
-
-            const channel = value('#channel');
-            const user = value('#user');
-
-            if (channel.length === 0 && user.length === 0) {
-                error('Either a channel or user ID has to be specified!');
-                return;
-            }
-
-            updating = true;
-
-            const limit = value('#limit');
-            const offset = value('#offset');
-
-            const messages = $('#messages');
-            messages.before('<p class="text-warning" id="loading">Loading...</p>');
-            const loading = $('#loading');
-            const refresh = $('#refresh');
-            const count = $('#count');
-            const countP = count.parent('div');
-
-            if (!messages.hasClass('hidden')) {
-                messages.addClass('hidden');
-            }
-
-            const err = $('#error');
-            if (!err.hasClass('hidden')) {
-                err.addClass('hidden');
-            }
-
-            $('tbody tr', messages).remove();
-
-            if (!refresh.hasClass('disabled')) {
-                refresh.addClass('disabled');
-            }
-
-            if (!countP.hasClass('hidden')) {
-                countP.addClass('hidden');
-            }
-
-            $('.fa', refresh).addClass('fa-spin');
-
-            const url = `/api/messages?channel=${channel}&user=${user}&limit=${limit}&offset=${offset}`;
-            fetch(url)
-            .then((response) => {
-                if (response.ok) {
-
-                }
-
-
-            });
-        };
-    </script>
+    {% if user is not empty %}
+        <script type="text/javascript" src="/static/js/messages.js"></script>
+    {% endif %}
 {% endblock %}

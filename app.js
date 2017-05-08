@@ -200,12 +200,17 @@ web.use(passport.session());
 web.set('views', __dirname + '/views');
 web.set('view engine', 'html');
 web.engine('html', twig.__express);
+web.use('/static', express.static('static'));
 
 // TODO: Setup views and all that.
 web.get('/', (req, res) => {
-    res.render('home', {
+    const data = {
         page: 'Home'
-    });
+    };
+
+    data.user = req.session.passport && req.session.passport.user ? req.session.passport.user : null;
+
+    res.render('home', data);
 });
 
 web.get('/auth/discord', passport.authenticate('discord', {scope: scopes}), () => {});
