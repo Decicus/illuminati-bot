@@ -126,7 +126,7 @@ const handleMessage = (msg, after) => {
             avatarUrl: user.avatarURL,
             bot: user.bot,
             createdAt: user.createdTimestamp,
-            defaultAvatarUrl: defaultAvatarURL,
+            defaultAvatarUrl: user.defaultAvatarURL,
             discriminator: user.discriminator,
             id: user.id,
             name: user.username
