@@ -30,7 +30,7 @@ module.exports = (message, type) => {
         type
     };
 
-    const key = datastore.key([kind, timestamp]);
+    const key = datastore.key([kind, `${_.randomInt(0, 1000)}-${timestamp}`]);
     datastore.insert({
         key,
         data

@@ -113,4 +113,23 @@ _.send = (res, status, body) => {
     res.status(status).send(body);
 };
 
+/**
+ * Get random integer within a certain range.
+ *
+ * @param  {Number} min
+ * @param  {Number} max
+ * @return {Number}
+ */
+_.randomInt = (min, max) => {
+    if (typeof min !== 'number') {
+        min = 0;
+    }
+
+    if (typeof max !== 'number') {
+        max = 10;
+    }
+
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
 module.exports = _;
