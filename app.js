@@ -235,13 +235,14 @@ api.use((req, res, next) => {
         return;
     }
 
-    const id = req.session.passport.user.id;
+    const user = req.session.passport.user;
+    const id = user.id;
     const allowedUser = settings.allowedUsers.includes(id);
     const isAdmin = config.discord.admins.includes(id);
 
     if (!allowedUser && !isAdmin) {
         _.send(res, 403, {
-            message: "You do not have access."
+            message: `${user.username}#${user.discriminator} does not have access.`
         });
         return;
     }
