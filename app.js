@@ -175,7 +175,9 @@ const DiscordStrategy = require('passport-discord').Strategy;
 const auth = config.discord;
 const web = express();
 
-// Passport/auth sessions setup
+/**
+ * Passport/auth sessions setup
+ */
 const scopes = ['identify'];
 passport.serializeUser((user, done) => {
     done(null, user);
@@ -201,13 +203,17 @@ web.use(session({
 web.use(passport.initialize());
 web.use(passport.session());
 
-// Twig setup
+/**
+ * Twig setup
+ */
 web.set('views', __dirname + '/views');
 web.set('view engine', 'html');
 web.engine('html', twig.__express);
 web.use('/static', express.static('static'));
 
-// Routes
+/**
+ * Normal routes
+ */
 web.get('/', (req, res) => {
     const data = {
         page: 'Home'
@@ -231,7 +237,9 @@ web.get('/auth/logout', function(req, res) {
     res.redirect('/');
 });
 
-// API routes
+/**
+ * API routes
+ */
 const api = express.Router();
 api.use((req, res, next) => {
     if (!req.session.passport || !req.session.passport.user) {
@@ -279,6 +287,35 @@ api.get('/channels', (req, res) => {
 
     _.send(res, 200, {
         channels: validChannels
+    });
+});
+
+api.get('/message', (req, res) => {
+    const q = req.query;
+    const id = q.id || "";
+
+    if (id.length === 0) {
+        _.send(res, 400, {
+            message: "A message ID has to be specified."
+        });
+        return;
+    }
+
+    const query = datastore.createQuery(messageKind).filter('id', '=', id);
+    datastore.runQuery(query, (err, messages) => {
+        if (err) {
+            log(err, 'error');
+            _.send(res, 500, {
+                message: "An error occurred and has been logged."
+            });
+
+            return;
+        }
+
+        _.send(res, 200, {
+            count: messages.length,
+            messages: messages
+        });
     });
 });
 
