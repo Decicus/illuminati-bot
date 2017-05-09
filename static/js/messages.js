@@ -50,6 +50,56 @@ const fetchSettings = {
     method: 'GET'
 };
 
+/**
+ * Clone the info button element.
+ *
+ * @type {Object}
+ */
+const infoBtn = $('#info-btn')
+                .clone()
+                .removeAttr('id')
+                .removeClass('hidden');
+
+/**
+ * The modal for display message information.
+ *
+ * @type {Object}
+ */
+const msgModal = $('#message-information');
+
+/**
+ * Displays more message details.
+ * Not using ES6 arrow functions, because apparently `this` isn't set to the element - TIL
+ *
+ * @return {Void}
+ */
+const showMessage = function() {
+    const _this = $(this);
+    const id = _this.attr('id');
+
+    fetch(`/api/message?id=${id}`, fetchSettings).then((response) => {
+        return response.json();
+    }, (err) => {
+        error(err);
+    }).then((json) => {
+        if (!json.success) {
+            error(`An error occurred loading message: ${json.message}`);
+            return;
+        }
+
+        if (json.count > 0) {
+            const message = json.messages[0];
+            $('#message-id', msgModal).html(id);
+            // TODO: Make this displayed prettier.
+            $('code', msgModal).html(htmlEntities(JSON.stringify(message, null, 4)));
+            msgModal.modal();
+            return;
+        }
+
+        error(`No message was found with the ID: ${id}`);
+    });
+};
+
 const update = () => {
     if (updating) {
         error('You are already requesting messages. Please wait until the previous request has finished before requesting more messages.');
@@ -121,9 +171,12 @@ const update = () => {
             const locale = date.toLocaleString();
             const utcDate = date.toUTCString();
 
+            infoBtn.attr('id', id);
+
             $('<tr />')
-                .html(`<th title="${utcDate}">${locale}</th><td>${server.name} - #${channel.name}</td><td title="${user.id}">${user.name}#${user.discriminator}</td><td>${htmlEntities(message)}</td>`)
+                .html(`<th title="${utcDate}">${locale}</th><td>${server.name} - #${channel.name}</td><td title="${user.id}">${user.name}#${user.discriminator}</td><td>${htmlEntities(message)}</td><td>${infoBtn.prop('outerHTML')}</td>`)
                 .appendTo('tbody', messages);
+            $(`button#${id}`).on('click', showMessage);
         });
 
         messages.removeClass('hidden');

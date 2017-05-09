@@ -3,6 +3,27 @@
 {% block main %}
 <div class="jumbotron">
     {% if user is not empty %}
+        <div class="modal fade" id="message-information">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Message details - ID: <span id="message-id"></span></h4>
+                    </div>
+
+                    <div class="modal-body">
+                        <!-- TODO: Make this layout prettier -->
+                        <pre><code></code></pre>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="form-group">
             <button type="button" class="btn btn-success pull-right disabled" id="refresh">
                 <i class="fa fa-1x fa-spinner"></i> Refresh
@@ -36,6 +57,7 @@
         <div class="alert alert-danger hidden" id="error"></div>
 
         <div class="hidden alert alert-success"><i class="fa fa-comments-o fa-1x"></i> Retrieved <strong id="count"></strong> messages</div>
+        <button class="btn btn-xs btn-info hidden" id="info-btn"><i class="fa fa-1x fa-info"></i></button>
         <table id="messages" class="table table-bordered hidden">
             <thead>
                 <tr>
@@ -43,6 +65,7 @@
                     <th>Channel:</th>
                     <th>Display name:</th>
                     <th>Message:</th>
+                    <th>Actions:</th>
                 </tr>
             </thead>
 
