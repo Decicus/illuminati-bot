@@ -139,7 +139,7 @@ const update = () => {
     }
 
     const channel = value('#channel');
-    const user = value('#user');
+    const user = value('#userid');
 
     if (channel.length === 0 && user.length === 0) {
         error('Either a channel or user ID has to be specified!');
