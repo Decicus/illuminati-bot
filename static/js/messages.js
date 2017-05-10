@@ -251,7 +251,7 @@ $(document).ready(() => {
 
     $('#refresh').on('click', update);
     $('#channel').on('change', update);
-    $('#username').on('change', update);
+    $('#userid').on('change', update);
     $('#limit').on('change', update);
     $('#offset').on('change', update);
     const clipboard = new Clipboard('.discord-id');
