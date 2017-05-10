@@ -91,7 +91,39 @@ const showMessage = function() {
             const message = json.messages[0];
             $('#message-id', msgModal).html(id);
             // TODO: Make this displayed prettier.
-            $('code', msgModal).html(htmlEntities(JSON.stringify(message, null, 4)));
+
+            const user = message.user;
+            const userBody = $('#user tbody', msgModal);
+            const userCreated = moment(user.createdAt);
+
+            $('#name', userBody).html(`${user.name}#${user.discriminator}`);
+            $('#user_id', userBody).html(user.id);
+            $('#avatar', userBody).attr('src', user.avatarUrl || user.defaultAvatarUrl);
+            $('#created_at', userBody).html(userCreated.format("LL - LTS ([UTC]Z)"));
+            $('#bot', userBody).html(user.bot ? 'Yes' : 'No');
+
+            const attachments = message.attachments;
+            const attDiv = $('#attachments', msgModal);
+
+            if (Object.keys(attachments).length > 0) {
+                attDiv.removeClass('hidden');
+                const attBody = $('#attachments tbody', msgModal);
+                $('tr', attBody).remove(); // Remove old entries
+
+                $.each(attachments, (id, att) => {
+                    const row = $('<tr/>');
+
+                    $('<td/>').html(htmlEntities(att.name)).appendTo(row);
+                    $('<a/>').attr('href', att.url).html(htmlEntities(att.url)).appendTo($('<td/>').appendTo(row));
+
+                    row.appendTo(attBody);
+                });
+            } else {
+                if (!attDiv.hasClass('hidden')) {
+                    attDiv.addClass('hidden');
+                }
+            }
+
             msgModal.modal();
             return;
         }
@@ -173,9 +205,15 @@ const update = () => {
 
             infoBtn.attr('id', id);
 
+            const htmlString = `<th title="${utcDate}">${locale}</th>
+            <td>${server.name} - #${channel.name}</td>
+            <td class="discord-id" title="Click to copy user ID" data-clipboard-text="${user.id}">${user.name}#${user.discriminator}</td>
+            <td>${htmlEntities(message)}</td>
+            <td>${infoBtn.prop('outerHTML')}</td>`;
+
             $('<tr />')
-                .html(`<th title="${utcDate}">${locale}</th><td>${server.name} - #${channel.name}</td><td title="${user.id}">${user.name}#${user.discriminator}</td><td>${htmlEntities(message)}</td><td>${infoBtn.prop('outerHTML')}</td>`)
-                .appendTo('tbody', messages);
+                .html(htmlString)
+                .appendTo('#messages tbody');
             $(`button#${id}`).on('click', showMessage);
         });
 
@@ -216,4 +254,5 @@ $(document).ready(() => {
     $('#username').on('change', update);
     $('#limit').on('change', update);
     $('#offset').on('change', update);
+    const clipboard = new Clipboard('.discord-id');
 });
