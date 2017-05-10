@@ -199,13 +199,11 @@ const update = () => {
         msgs.forEach((data) => {
             const {channel, id, message, server, timestamp, user} = data;
 
-            const date = new Date(timestamp);
-            const locale = date.toLocaleString();
-            const utcDate = date.toUTCString();
+            const date = moment(timestamp);
 
             infoBtn.attr('id', id);
 
-            const htmlString = `<th title="${utcDate}">${locale}</th>
+            const htmlString = `<th>${date.format("LL - LTS ([UTC]Z)")}</th>
             <td>${server.name} - #${channel.name}</td>
             <td class="discord-id" title="Click to copy user ID" data-clipboard-text="${user.id}">${user.name}#${user.discriminator}</td>
             <td>${htmlEntities(message)}</td>
