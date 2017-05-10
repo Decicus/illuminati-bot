@@ -9,6 +9,16 @@ const htmlEntities = (str) => {
 };
 
 /**
+ * Converts newlines to <br> tags.
+ *
+ * @param  {String} str
+ * @return {String}
+ */
+const nl2br = (str) => {
+    return (str + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1' + '<br>' + '$2');
+};
+
+/**
  * Gets the value from the selector and trims it.
  *
  * @param  {String} selector The selector jQuery should look for.
@@ -90,7 +100,6 @@ const showMessage = function() {
         if (json.count > 0) {
             const message = json.messages[0];
             $('#message-id', msgModal).html(id);
-            // TODO: Make this displayed prettier.
 
             const user = message.user;
             const userBody = $('#user tbody', msgModal);
@@ -206,7 +215,7 @@ const update = () => {
             const htmlString = `<th>${date.format("LL - LTS ([UTC]Z)")}</th>
             <td>${server.name} - #${channel.name}</td>
             <td class="discord-id" title="Click to copy user ID" data-clipboard-text="${user.id}">${user.name}#${user.discriminator}</td>
-            <td>${htmlEntities(message)}</td>
+            <td>${nl2br(htmlEntities(message))}</td>
             <td>${infoBtn.prop('outerHTML')}</td>`;
 
             $('<tr />')
