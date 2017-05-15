@@ -36,13 +36,6 @@ config.discord = {
     redirectUri: 'http://localhost:8000/auth/discord/callback',
 
     /**
-     * The Discord client ID for adding the bot to servers.
-     *
-     * @type {String}
-     */
-    botClientId: '',
-
-    /**
      * The Discord bot token
      *
      * @type {String}

@@ -8,7 +8,7 @@ const _ = require('./core/helpers');
 
 const client = new discordjs.Client();
 
-const botAuthUrl = `https://discordapp.com/oauth2/authorize?client_id=${config.discord.botClientId}&scope=bot&permissions=84992`;
+const botAuthUrl = `https://discordapp.com/oauth2/authorize?client_id=${config.discord.clientId}&scope=bot&permissions=84992`;
 
 let ignore = {
     channels: [],
