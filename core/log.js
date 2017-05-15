@@ -4,7 +4,7 @@ const datastore = require('@google-cloud/datastore')(config.gcloud);
 const kind = config.settings.gcloud.logs;
 const _ = require('./helpers');
 
-module.exports = (message, type) => {
+module.exports = (message, type, skip) => {
     if (!type) {
         type = 'info';
     } else {
@@ -18,10 +18,14 @@ module.exports = (message, type) => {
     const timestamp = Date.now();
     switch (type) {
         case 'error':
-            console.error(message);
+            console.error(`[${timestamp}] ${message}`);
             break;
         default:
-            console.log(message);
+            console.log(`[${timestamp}] ${message}`);
+    }
+
+    if (skip) {
+        return;
     }
 
     const data = {

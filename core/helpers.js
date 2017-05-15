@@ -1,7 +1,6 @@
 'use strict';
 const _ = {};
 const fs = require('fs');
-const log = require('./log');
 
 /**
  * Check if the input value is "undefined".
@@ -64,7 +63,7 @@ _.readFile = (file) => {
     try {
         return fs.readFileSync(file, 'utf-8');
     } catch (error) {
-        log(error, 'error');
+        console.error(error);
         return false;
     }
 };
@@ -79,7 +78,7 @@ _.readFile = (file) => {
 _.writeFile = (filename, data) => {
     fs.writeFile(filename, data, (error) => {
         if (error) {
-            log(error, 'error', true);
+            console.error(error, 'error');
         }
     });
 };
@@ -106,9 +105,8 @@ _.userName = (user) => {
 _.send = (res, status, body) => {
     if (typeof body === 'object') {
         body.status = status;
+        body.success = (status === 200);
     }
-
-    body.success = (status === 200);
 
     res.status(status).send(body);
 };
