@@ -201,6 +201,11 @@ const update = () => {
     }).then((json) => {
         if (!json.success) {
             error(`An error occurred loading messages: ${json.message}`);
+
+            updating = false;
+            loading.remove();
+            refresh.removeClass('disabled');
+            $('.fa', refresh).removeClass('fa-spin');
             return;
         }
 
