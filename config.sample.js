@@ -95,9 +95,10 @@ config.settings = {
 
         /**
          * The port Express should listen to.
+         *
          * @type {Number}
          */
-        port: 8000,
+        port: process.env.PORT || 8000,
 
         /**
          * The maximum amount of messages allowed to request through the Express API.

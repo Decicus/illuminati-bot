@@ -209,7 +209,7 @@ web.use(passport.session());
 web.set('views', __dirname + '/views');
 web.set('view engine', 'html');
 web.engine('html', twig.__express);
-web.use('/static', express.static('static'));
+web.use('/static', express.static(__dirname + '/static'));
 
 /**
  * Normal routes
