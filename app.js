@@ -301,7 +301,12 @@ api.get('/message', (req, res) => {
         return;
     }
 
-    const query = datastore.createQuery(messageKind).filter('id', '=', id);
+    const [messageId, timestamp] = id.split("_");
+
+    const query = datastore.createQuery(messageKind)
+                    .filter('id', '=', messageId)
+                    .filter('timestamp', '=', timestamp);
+
     datastore.runQuery(query, (err, messages) => {
         if (err) {
             log(err, 'error');

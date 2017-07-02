@@ -215,7 +215,7 @@ const update = () => {
 
             const date = moment(timestamp);
 
-            infoBtn.attr('id', id);
+            infoBtn.attr('id', `${id}_${timestamp}`);
 
             const htmlString = `<th>${date.format("LL - LTS ([UTC]Z)")}</th>
             <td>${server.name} - #${channel.name}</td>
@@ -226,7 +226,7 @@ const update = () => {
             $('<tr />')
                 .html(htmlString)
                 .appendTo('#messages tbody');
-            $(`button#${id}`).on('click', showMessage);
+            $(`button#${id}_${timestamp}`).on('click', showMessage);
         });
 
         messages.removeClass('hidden');
