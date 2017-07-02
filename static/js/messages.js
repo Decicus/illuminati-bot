@@ -119,8 +119,8 @@ const showMessage = function() {
             $('#bot', userBody).html(user.bot ? 'Yes' : 'No');
 
             const msgDetails = $('#message', msgModal);
-            $('#message_content', msgModal).html(htmlEntities(message.message));
             $('#updated_at', msgDetails).html(moment(message.timestamp).format(dtFormat));
+            $('#content', msgDetails).html(htmlEntities(message.message));
 
             const attachments = message.attachments;
             const attDiv = $('#attachments', msgModal);
