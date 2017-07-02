@@ -269,7 +269,7 @@ api.get('/channels', (req, res) => {
     const validChannels = {};
 
     channels.forEach((chan) => {
-        if (chan.type !== 'text') {
+        if (chan.type !== 'text' || ignore.channels.includes(chan.id)) {
             return;
         }
 
