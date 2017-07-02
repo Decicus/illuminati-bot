@@ -78,6 +78,13 @@ const infoBtn = $('#info-btn')
 const msgModal = $('#message-information');
 
 /**
+ * Standard format for date/time stamps.
+ *
+ * @type {String}
+ */
+const dtFormat = "LL - LTS ([UTC]Z)";
+
+/**
  * Displays more message details.
  * Not using ES6 arrow functions, because apparently `this` isn't set to the element - TIL
  *
@@ -108,8 +115,12 @@ const showMessage = function() {
             $('#name', userBody).html(`${user.name}#${user.discriminator}`);
             $('#user_id', userBody).html(user.id);
             $('#avatar', userBody).attr('src', user.avatarUrl || user.defaultAvatarUrl);
-            $('#created_at', userBody).html(userCreated.format("LL - LTS ([UTC]Z)"));
+            $('#created_at', userBody).html(userCreated.format(dtFormat));
             $('#bot', userBody).html(user.bot ? 'Yes' : 'No');
+
+            const msgDetails = $('#message', msgModal);
+            $('#message_content', msgModal).html(htmlEntities(message.message));
+            $('#updated_at', msgDetails).html(moment(message.timestamp).format(dtFormat));
 
             const attachments = message.attachments;
             const attDiv = $('#attachments', msgModal);
