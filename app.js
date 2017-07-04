@@ -29,6 +29,91 @@ if (readSettings !== false) {
     log(`Successfully read the settings file (${config.settings.settings}).`);
 }
 
+/**
+ * Store settings to file.
+ *
+ * @type {Function}
+ */
+const saveSettings = () => {
+    _.writeFile(config.settings.settings, _.JSONify(settings));
+};
+
+/**
+ * Regex for matching user mentions in Discord.
+ *
+ * @type {RegExp}
+ */
+const userRegex = /<@([0-9]+)>/;
+
+/**
+ * Commands for handling updating of users and such.
+ *
+ * @type {Object}
+ */
+const commands = {
+    /**
+     * Add user to allowed users.
+     *
+     * @param  {Object} msg Discord.js Message object
+     * @return {Void}
+     */
+    adduser: (msg, split) => {
+        const user = split[1];
+
+        if (!user) {
+            msg.reply('You have to specify a user.');
+            return;
+        }
+
+        const match = user.match(userRegex);
+        if (!match) {
+            msg.reply('A valid user has to be specified as the first parameter.');
+            return;
+        }
+
+        const userId = match[1];
+        if (settings.allowedUsers.includes(userId)) {
+            msg.reply(`<@${userId}> is already an allowed user.`);
+            return;
+        }
+
+        settings.allowedUsers.push(userId);
+        saveSettings();
+        msg.reply(`<@${userId}> has been added to allowed users.`);
+    },
+
+    /**
+     * Remove a user from allowed users.
+     *
+     * @param  {Object} msg Discord.js Message object
+     * @return {Void}
+     */
+    deluser: (msg, split) => {
+        const user = split[1];
+
+        if (!user) {
+            msg.reply('You have to specify a user.');
+            return;
+        }
+
+        const match = user.match(userRegex);
+        if (!match) {
+            msg.reply('A valid user has to be specified as the first parameter.');
+            return;
+        }
+
+        const userId = match[1];
+        if (!settings.allowedUsers.includes(userId)) {
+            msg.reply(`<@${userId}> is not an allowed user.`);
+            return;
+        }
+
+        settings.allowedUsers.splice(settings.allowedUsers.indexOf(userId), 1);
+        saveSettings();
+        msg.reply(`<@${userId}> has been removed from allowed users.`);
+    },
+};
+
 const messageKind = config.settings.gcloud.messages;
 /**
  * Handles logging of messages
@@ -158,11 +243,42 @@ const handleMessage = (msg, after) => {
 client.on('message', handleMessage);
 client.on('messageUpdate', handleMessage);
 
+/**
+ * Handle messages that trigger commands
+ */
+client.on('message', (msg) => {
+    if (!config.discord.admins.includes(msg.author.id)) {
+        return;
+    }
+
+    const message = msg.content;
+    const split = message.split(" ");
+
+    const prefix = config.discord.cmdPrefix || '!';
+    const prefixLen = prefix.length;
+
+    let cmd = split[0];
+
+    if (message.length < prefixLen || cmd.length < prefixLen || message.slice(0, prefixLen) !== prefix) {
+        return;
+    }
+
+    cmd = cmd.slice(prefixLen);
+    if (!commands[cmd]) {
+        return;
+    }
+
+    commands[cmd](msg, split);
+});
+
 client.on('warn', (warning) => {
     log(warning);
 });
 
-client.login(config.discord.token);
+client.login(config.discord.token).then(() => {
+    const user = client.user;
+    log(`Logged into Discord using account: ${user.username}#${user.discriminator}`);
+});
 
 /**
  * Web interface

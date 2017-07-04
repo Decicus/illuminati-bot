@@ -1,5 +1,5 @@
 {
-  "name": "discord-log-bot",
+  "name": "illuminati-bot",
   "version": "0.1.0",
   "description": "Logs Discord chats",
   "main": "app.js",
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/Decicus/discord-log-bot.git"
+    "url": "git+ssh://git@github.com/Decicus/illuminati-bot.git"
   },
   "keywords": [
     "discord",
@@ -19,9 +19,9 @@
   "author": "Alex Thomassen",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Decicus/discord-log-bot/issues"
+    "url": "https://github.com/Decicus/illuminati-bot/issues"
   },
-  "homepage": "https://github.com/Decicus/discord-log-bot#readme",
+  "homepage": "https://github.com/Decicus/illuminati-bot#readme",
   "dependencies": {
     "@google-cloud/datastore": "^1.0.0",
     "discord.js": "^11.0.0",
