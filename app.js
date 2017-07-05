@@ -238,7 +238,7 @@ commands.users = (msg) => {
         return;
     }
 
-    msg.reply(`Currently allowed users: <@${settings.allowedUsers.join('>, <@')}>`);
+    _.reply(msg, `Currently allowed users: <@${settings.allowedUsers.join('>, <@')}>`);
 };
 
 /**
