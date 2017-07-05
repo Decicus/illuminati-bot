@@ -130,4 +130,40 @@ _.randomInt = (min, max) => {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
+/**
+ * Reply to Discord messages with a slightly different format than msg.reply()
+ *
+ * @param  {Object} msg  Discord.js Message object
+ * @param  {String} text Message text
+ * @return {Void}
+ */
+_.reply = (msg, text) => {
+    if (msg.channel.type === 'text') {
+        msg.channel.send(`<@${msg.author.id}> - ${text}`);
+        return;
+    }
+
+    msg.reply(text);
+};
+
+/**
+ * Joins an array of user IDs in such a way that each user is mentioned.
+ *
+ * @param  {Array} users Array of user IDs
+ * @return {String}
+ */
+_.joinUsers = (users) => {
+    return `<@${users.join('>, <@')}>`;
+};
+
+/**
+ * Joins an array of channel IDs, so that each channel is "mentioned".
+ *
+ * @param  {Array} channels Array of channel IDs
+ * @return {String}
+ */
+_.joinChannels = (channels) => {
+    return `<#${channels.join('>, <#')}>`;
+};
+
 module.exports = _;

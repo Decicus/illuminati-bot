@@ -31,87 +31,202 @@ if (readSettings !== false) {
 
 /**
  * Store settings to file.
- *
- * @type {Function}
  */
 const saveSettings = () => {
     _.writeFile(config.settings.settings, _.JSONify(settings));
 };
 
 /**
- * Regex for matching user mentions in Discord.
- *
- * @type {RegExp}
+ * Store "ignore" settings to file.
  */
-const userRegex = /<@([0-9]+)>/;
+const saveIgnore = () => {
+    _.writeFile(config.settings.ignore, _.JSONify(ignore));
+};
 
 /**
  * Commands for handling updating of users and such.
  *
  * @type {Object}
  */
-const commands = {
-    /**
-     * Add user to allowed users.
-     *
-     * @param  {Object} msg Discord.js Message object
-     * @return {Void}
-     */
-    adduser: (msg, split) => {
-        const user = split[1];
+const commands = {};
 
-        if (!user) {
-            msg.reply('You have to specify a user.');
-            return;
-        }
+/**
+ * Add user to allowed users.
+ */
+commands.adduser = (msg) => {
+    const mentions = msg.mentions.users;
 
-        const match = user.match(userRegex);
-        if (!match) {
-            msg.reply('A valid user has to be specified as the first parameter.');
-            return;
-        }
+    if (!mentions || mentions.size === 0) {
+        _.reply(msg, 'At least one user has to be mentioned.');
+        return;
+    }
 
-        const userId = match[1];
+    const usersToAdd = [];
+    mentions.forEach((user) => {
+        const userId = user.id;
+
         if (settings.allowedUsers.includes(userId)) {
-            msg.reply(`<@${userId}> is already an allowed user.`);
-            return;
+            _.reply(msg, `<@${userId}> is already an allowed user.`);
+        } else {
+            usersToAdd.push(userId);
         }
+    });
 
+    if (usersToAdd.length === 0) {
+        return;
+    }
+
+    usersToAdd.forEach((userId) => {
+        log(`${_.userName(msg.author)} added ${userId} to allowed users.`);
         settings.allowedUsers.push(userId);
-        saveSettings();
-        msg.reply(`<@${userId}> has been added to allowed users.`);
-    },
+    });
 
-    /**
-     * Remove a user from allowed users.
-     *
-     * @param  {Object} msg Discord.js Message object
-     * @return {Void}
-     */
-    deluser: (msg, split) => {
-        const user = split[1];
+    saveSettings();
+    _.reply(msg, `The users: ${_.joinUsers(usersToAdd)} were added to allowed users.`);
+};
 
-        if (!user) {
-            msg.reply('You have to specify a user.');
-            return;
-        }
+/**
+ * List admin users.
+ */
+commands.admins = (msg) => {
+    _.reply(msg, `Admin users: <@${config.discord.admins.join('>, <@')}>`);
+};
 
-        const match = user.match(userRegex);
-        if (!match) {
-            msg.reply('A valid user has to be specified as the first parameter.');
-            return;
-        }
+/**
+ * Alias of commands.adduser.
+ *
+ * @type {Function}
+ */
+commands.addusers = commands.adduser;
 
-        const userId = match[1];
+/**
+ * Remove a user from allowed users.
+ */
+commands.deluser = (msg) => {
+    const mentions = msg.mentions.users;
+
+    if (!mentions || mentions.size === 0) {
+        _.reply(msg, 'At least one user has to be mentioned.');
+        return;
+    }
+
+    const usersToRemove = [];
+    mentions.forEach((user) => {
+        const userId = user.id;
+
         if (!settings.allowedUsers.includes(userId)) {
-            msg.reply(`<@${userId}> is not an allowed user.`);
+            _.reply(msg, `<@${userId}> is not an allowed user.`);
+        } else {
+            usersToRemove.push(userId);
+        }
+    });
+
+    if (usersToRemove.length === 0) {
+        return;
+    }
+
+    usersToRemove.forEach((userId) => {
+        log(`${_.userName(msg.author)} removed ${userId} from allowed users.`);
+        settings.allowedUsers.splice(settings.allowedUsers.indexOf(userId), 1);
+    });
+
+    saveSettings();
+    _.reply(msg, `The users: ${_.joinUsers(usersToRemove)} were removed from allowed users.`);
+};
+
+/**
+ * Alias of commands.deluser.
+ *
+ * @type {Function}
+ */
+commands.delusers = commands.deluser;
+
+/**
+ * Adds a channel to the channel ignore list.
+ */
+commands.ignorechannel = (msg) => {
+    const mentions = msg.mentions.channels;
+
+    if (!mentions || mentions.size === 0) {
+        _.reply(msg, 'At least one channel has to be mentioned.');
+        return;
+    }
+
+    const channelIds = [];
+    mentions.forEach((channel) => {
+        const id = channel.id;
+        if (ignore.channels.includes(id)) {
+            _.reply(msg, `Channel <#${id}> is already in the ignore list.`);
             return;
         }
 
-        settings.allowedUsers.splice(settings.allowedUsers.indexOf(userId), 1);
-        saveSettings();
-        msg.reply(`<@${userId}> has been removed from allowed users.`);
-    },
+        channelIds.push(channel.id);
+    });
+
+    if (channelIds.length === 0) {
+        return;
+    }
+
+    channelIds.forEach((channel) => {
+        log(`${_.userName(msg.author)} added ${channel} to channel ignore list.`);
+        ignore.channels.push(channel);
+    });
+
+    saveIgnore();
+    _.reply(msg, `The channels: ${_.joinChannels(channelIds)} are now being ignored (messages in these channels are not logged).`);
+};
+
+/**
+ * Removes a channel from the channel ignore list.
+ */
+commands.unignorechannel = (msg) => {
+    const mentions = msg.mentions.channels;
+
+    if (!mentions || mentions.size === 0) {
+        _.reply(msg, 'At least one channel has to be mentioned.');
+        return;
+    }
+
+    const channelIds = [];
+    mentions.forEach((channel) => {
+        const id = channel.id;
+        if (!ignore.channels.includes(id)) {
+            _.reply(msg, `Channel <#${id}> is not in the ignore list.`);
+            return;
+        }
+
+        channelIds.push(channel.id);
+    });
+
+    if (channelIds.length === 0) {
+        return;
+    }
+
+    channelIds.forEach((channel) => {
+        log(`${_.userName(msg.author)} removed ${channel} from channel ignore list.`);
+        ignore.channels.splice(ignore.channels.indexOf(channel), 1);
+    });
+
+    saveIgnore();
+    _.reply(msg, `The channels: ${_.joinChannels(channelIds)} are no longer ignored (messages in these channels are now being logged again).`);
+};
+
+/**
+ * Alias of commands.ignorechannel & commands.unignorechannel.
+ */
+commands.ic = commands.ignorechannel;
+commands.uic = commands.unignorechannel;
+
+/**
+ * Lists currently allowed users.
+ */
+commands.users = (msg) => {
+    if (settings.allowedUsers.length === 0) {
+        msg.reply('Currently allowed users: None.');
+        return;
+    }
+
+    msg.reply(`Currently allowed users: <@${settings.allowedUsers.join('>, <@')}>`);
 };
 
 const messageKind = config.settings.gcloud.messages;
@@ -263,7 +378,7 @@ client.on('message', (msg) => {
         return;
     }
 
-    cmd = cmd.slice(prefixLen);
+    cmd = cmd.slice(prefixLen).toLowerCase();
     if (!commands[cmd]) {
         return;
     }
