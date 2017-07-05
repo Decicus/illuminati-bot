@@ -254,7 +254,7 @@ client.on('message', (msg) => {
     const message = msg.content;
     const split = message.split(" ");
 
-    const prefix = config.discord.cmdPrefix || '!';
+    const prefix = config.settings.cmdPrefix || '!';
     const prefixLen = prefix.length;
 
     let cmd = split[0];

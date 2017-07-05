@@ -40,13 +40,6 @@ config.discord = {
     clientSecret: '',
 
     /**
-     * Prefix for commands
-     *
-     * @type {String}
-     */
-    cmdPrefix: '!',
-
-    /**
      * The Discord authentication redirect URI.
      *
      * @type {String}
@@ -82,7 +75,7 @@ config.settings = {
      *
      * @type {String}
      */
-    cmdPrefix: "!",
+    cmdPrefix: '!',
 
     /**
      * Location of data file with information about what is ignored (channels, users etc.)
