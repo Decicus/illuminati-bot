@@ -2,3 +2,8 @@
     width: 60px;
     height: auto;
 }
+
+.pre-message {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
