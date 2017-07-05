@@ -241,6 +241,13 @@ commands.users = (msg) => {
     msg.reply(`Currently allowed users: <@${settings.allowedUsers.join('>, <@')}>`);
 };
 
+/**
+ * List commands available to admins
+ */
+commands.commands = (msg) => {
+    _.reply(msg, `These commands are available for admins, prefixed with ${config.settings.cmdPrefix || '!'}:\n${Object.keys(commands).join(', ')}`);
+};
+
 const messageKind = config.settings.gcloud.messages;
 /**
  * Handles logging of messages
