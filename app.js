@@ -218,6 +218,18 @@ commands.ic = commands.ignorechannel;
 commands.uic = commands.unignorechannel;
 
 /**
+ * Lists currently ignored channels
+ */
+commands.channels = (msg) => {
+    if (ignore.channels.length === 0) {
+        _.reply(msg, 'Currently ignored channels: None.');
+        return;
+    }
+
+    _.reply(msg, `Currently ignored channels: ${_.joinChannels(ignore.channels)}`);
+};
+
+/**
  * Lists currently allowed users.
  */
 commands.users = (msg) => {
