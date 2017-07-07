@@ -89,7 +89,20 @@ commands.adduser = (msg) => {
  * List admin users.
  */
 commands.admins = (msg) => {
-    _.reply(msg, `Admin users: <@${config.discord.admins.join('>, <@')}>`);
+    const admins = config.discord.admins;
+    const users = [];
+
+    admins.forEach((admin) => {
+        const user = client.users.get(admin);
+
+        if (user) {
+            users.push(_.userName(user));
+        } else {
+            users.push(admin);
+        }
+    });
+
+    _.reply(msg, `Admin users: ${users.join(', ')}`);
 };
 
 /**
@@ -238,7 +251,19 @@ commands.users = (msg) => {
         return;
     }
 
-    _.reply(msg, `Currently allowed users: <@${settings.allowedUsers.join('>, <@')}>`);
+    const users = [];
+
+    settings.allowedUsers.forEach((allowedUser) => {
+        const user = client.users.get(allowedUser);
+
+        if (user) {
+            users.push(_.userName(user));
+        } else {
+            users.push(allowedUser);
+        }
+    });
+
+    _.reply(msg, `Currently allowed users: ${users.join(', ')}`);
 };
 
 /**
