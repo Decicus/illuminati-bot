@@ -44,6 +44,13 @@ const saveIgnore = () => {
 };
 
 /**
+ * RegExp for matching user ID.
+ *
+ * @type {RegExp}
+ */
+const userIdReg = /^[0-9]+$/;
+
+/**
  * Commands for handling updating of users and such.
  *
  * @type {Object}
@@ -53,36 +60,53 @@ const commands = {};
 /**
  * Add user to allowed users.
  */
-commands.adduser = (msg) => {
+commands.adduser = (msg, split) => {
     const mentions = msg.mentions.users;
+    const paramId = split[1] || '';
+    const idTest = userIdReg.test(paramId);
 
-    if (!mentions || mentions.size === 0) {
+    if (!mentions || mentions.size === 0 && !idTest) {
         _.reply(msg, 'At least one user has to be mentioned.');
         return;
     }
 
     const usersToAdd = [];
-    mentions.forEach((user) => {
-        const userId = user.id;
 
-        if (settings.allowedUsers.includes(userId)) {
-            _.reply(msg, `<@${userId}> is already an allowed user.`);
-        } else {
-            usersToAdd.push(userId);
+    // Lazily only allow first parameter when it's not a valid user mention.
+    if (idTest) {
+        if (settings.allowedUsers.includes(paramId)) {
+            _.reply(msg, `The user ID ${paramId} is already an allowed user.`);
+            return;
         }
-    });
+
+        usersToAdd.push(paramId);
+    } else {
+        mentions.forEach((user) => {
+            const userId = user.id;
+
+            if (settings.allowedUsers.includes(userId)) {
+                _.reply(msg, `<@${userId}> is already an allowed user.`);
+            } else {
+                usersToAdd.push(userId);
+            }
+        });
+    }
 
     if (usersToAdd.length === 0) {
         return;
     }
 
+    const users = [];
     usersToAdd.forEach((userId) => {
         log(`${_.userName(msg.author)} added ${userId} to allowed users.`);
         settings.allowedUsers.push(userId);
+
+        const user = client.users.get(userId);
+        users.push(user ? _.userName(user) : userId);
     });
 
     saveSettings();
-    _.reply(msg, `The users: ${_.joinUsers(usersToAdd)} were added to allowed users.`);
+    _.reply(msg, `The users: ${users.join(', ')} were added to allowed users.`);
 };
 
 /**
@@ -115,36 +139,52 @@ commands.addusers = commands.adduser;
 /**
  * Remove a user from allowed users.
  */
-commands.deluser = (msg) => {
+commands.deluser = (msg, split) => {
     const mentions = msg.mentions.users;
+    const paramId = split[1] || '';
+    const idTest = userIdReg.test(paramId);
 
-    if (!mentions || mentions.size === 0) {
+    if (!mentions || mentions.size === 0 && !idTest) {
         _.reply(msg, 'At least one user has to be mentioned.');
         return;
     }
 
     const usersToRemove = [];
-    mentions.forEach((user) => {
-        const userId = user.id;
-
-        if (!settings.allowedUsers.includes(userId)) {
-            _.reply(msg, `<@${userId}> is not an allowed user.`);
-        } else {
-            usersToRemove.push(userId);
+    // Lazily only allow first parameter when it's not a valid user mention.
+    if (idTest) {
+        if (!settings.allowedUsers.includes(paramId)) {
+            _.reply(msg, `The user ID ${paramId} is not an allowed user.`);
+            return;
         }
-    });
+
+        usersToRemove.push(paramId);
+    } else {
+        mentions.forEach((user) => {
+            const userId = user.id;
+
+            if (!settings.allowedUsers.includes(userId)) {
+                _.reply(msg, `<@${userId}> is not an allowed user.`);
+            } else {
+                usersToRemove.push(userId);
+            }
+        });
+    }
 
     if (usersToRemove.length === 0) {
         return;
     }
 
+    const users = [];
     usersToRemove.forEach((userId) => {
         log(`${_.userName(msg.author)} removed ${userId} from allowed users.`);
         settings.allowedUsers.splice(settings.allowedUsers.indexOf(userId), 1);
+
+        const user = client.users.get(userId);
+        users.push(user ? _.userName(user) : userId);
     });
 
     saveSettings();
-    _.reply(msg, `The users: ${_.joinUsers(usersToRemove)} were removed from allowed users.`);
+    _.reply(msg, `The users: ${users.join(', ')} were removed from allowed users.`);
 };
 
 /**
