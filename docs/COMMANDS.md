@@ -1,7 +1,11 @@
 # Commands
-All commands require the the user's Discord ID to be specified in the `config.js` file (specifically the `config.discord.admins` array) when the bot starts up.  
-All commands need to be prefixed with what is specified in the `config.js` (under `config.settings.cmdPrefix`) file. By default it's `!`.  
+All commands require the the user's Discord ID to be specified in the `config.js` file (specifically the `config.discord.admins` array) when the bot starts up.
+
+All commands need to be prefixed with what is specified in the `config.js` (under `config.settings.cmdPrefix`) file. By default it's `!`.
+
 Parameters are specified as `<required>`, `[optional]` and `(none)`.
+
+All commands work in channels that the bot can read/send messages in, including direct messages between a user and the bot.
 
 | Command | Parameters | Description |
 | :---: | :---: | :---: |
