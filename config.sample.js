@@ -47,6 +47,13 @@ config.discord = {
     redirectUri: 'http://localhost:8000/auth/discord/callback',
 
     /**
+     * Should the bot show as offline in the userlist?
+     *
+     * @type {Boolean}
+     */
+    showAsOffline: false,
+
+    /**
      * The Discord bot token
      *
      * @type {String}

@@ -474,6 +474,17 @@ client.on('warn', (warning) => {
     log(warning);
 });
 
+client.on('ready', () => {
+    const user = client.user;
+    log(`Connected as "${_.userName(user)}".`);
+
+    if (config.discord.showAsOffline === true) {
+        client.user.setPresence({
+            status: 'invisible'
+        });
+    }
+});
+
 client.login(config.discord.token).then(() => {
     const user = client.user;
     log(`Logged into Discord using account: ${user.username}#${user.discriminator}`);
