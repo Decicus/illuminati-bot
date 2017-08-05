@@ -94,7 +94,7 @@ const showMessage = function() {
     const _this = $(this);
     const id = _this.attr('id');
 
-    fetch(`/api/message?id=${id}`, fetchSettings).then((response) => {
+    fetch(`./api/message?id=${id}`, fetchSettings).then((response) => {
         return response.json();
     }, (err) => {
         error(err);
@@ -199,7 +199,7 @@ const update = () => {
 
     $('.fa', refresh).addClass('fa-spin');
 
-    const url = `/api/messages?channel=${channel}&user=${user}&limit=${limit}&offset=${offset}`;
+    const url = `./api/messages?channel=${channel}&user=${user}&limit=${limit}&offset=${offset}`;
     fetch(url, fetchSettings).then((response) => {
         return response.json();
     }, (err) => {
@@ -252,7 +252,7 @@ const update = () => {
 };
 
 $(document).ready(() => {
-    fetch('/api/channels', fetchSettings).then((response) => {
+    fetch('./api/channels', fetchSettings).then((response) => {
         return response.json();
     }, (err) => {
         error(err);
