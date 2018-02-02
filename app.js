@@ -431,6 +431,7 @@ const handleMessage = (msg, after) => {
         data
     }, (err) => {
         if (err) {
+            log(`Unable to save message from ${_.userName(user)} ${user.id}: ${msg.cleanContent}`, 'error');
             log(err, 'error');
         }
     });

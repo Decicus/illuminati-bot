@@ -16,12 +16,13 @@ module.exports = (message, type, skip) => {
     }
 
     const timestamp = Date.now();
+    const dateText = _.date(timestamp);
     switch (type) {
         case 'error':
-            console.error(`[${timestamp}] ${message}`);
+            console.error(`[${dateText}] ${message}`);
             break;
         default:
-            console.log(`[${timestamp}] ${message}`);
+            console.log(`[${dateText}] ${message}`);
     }
 
     if (skip) {

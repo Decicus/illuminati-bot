@@ -166,4 +166,20 @@ _.joinChannels = (channels) => {
     return `<#${channels.join('>, <#')}>`;
 };
 
+/**
+ * Returns a formatted date string.
+ *
+ * @return {String}
+ */
+_.date = () => {
+    let d = new Date().toUTCString().split(' ');
+
+    // Remove the 3-letter day added to the string
+    d.shift();
+    // Remove the default timezone.
+    d.pop();
+
+    return `${d.join(' ')} UTC`;
+};
+
 module.exports = _;
