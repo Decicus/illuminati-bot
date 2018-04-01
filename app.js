@@ -70,39 +70,26 @@ commands.adduser = (msg, split) => {
         return;
     }
 
-    const usersToAdd = [];
-
     // Lazily only allow first parameter when it's not a valid user mention.
-    if (idTest) {
-        if (settings.allowedUsers.includes(paramId)) {
-            _.reply(msg, `The user ID ${paramId} is already an allowed user.`);
-            return;
+    const userIds = idTest ? [paramId] : mentions.map(user => user.id);
+    const usersToAdd = userIds.filter((userId) => {
+        if (!settings.allowedUsers.includes(userId)) {
+            return true;
         }
-
-        usersToAdd.push(paramId);
-    } else {
-        mentions.forEach((user) => {
-            const userId = user.id;
-
-            if (settings.allowedUsers.includes(userId)) {
-                _.reply(msg, `<@${userId}> is already an allowed user.`);
-            } else {
-                usersToAdd.push(userId);
-            }
-        });
-    }
+        _.reply(msg, `<@${userId}> is already an allowed user.`);
+        return false;
+    });
 
     if (usersToAdd.length === 0) {
         return;
     }
 
-    const users = [];
-    usersToAdd.forEach((userId) => {
+    const users = usersToAdd.map((userId) => {
         log(`${_.userName(msg.author)} added ${userId} to allowed users.`);
         settings.allowedUsers.push(userId);
 
         const user = client.users.get(userId);
-        users.push(user ? _.userName(user) : userId);
+        return user ? _.userName(user) : userId;
     });
 
     saveSettings();
@@ -114,16 +101,10 @@ commands.adduser = (msg, split) => {
  */
 commands.admins = (msg) => {
     const admins = config.discord.admins;
-    const users = [];
 
-    admins.forEach((admin) => {
+    const users = admins.map((admin) => {
         const user = client.users.get(admin);
-
-        if (user) {
-            users.push(_.userName(user));
-        } else {
-            users.push(admin);
-        }
+        return user ? _.userName(user) : admin;
     });
 
     _.reply(msg, `Admin users: ${users.join(', ')}`);
@@ -149,38 +130,26 @@ commands.deluser = (msg, split) => {
         return;
     }
 
-    const usersToRemove = [];
     // Lazily only allow first parameter when it's not a valid user mention.
-    if (idTest) {
-        if (!settings.allowedUsers.includes(paramId)) {
-            _.reply(msg, `The user ID ${paramId} is not an allowed user.`);
-            return;
+    const userIds = idTest ? [paramId] : mentions.map(user => user.id);
+    const usersToRemove = userIds.filter((userId) => {
+        if (settings.allowedUsers.includes(userId)) {
+            return true;
         }
-
-        usersToRemove.push(paramId);
-    } else {
-        mentions.forEach((user) => {
-            const userId = user.id;
-
-            if (!settings.allowedUsers.includes(userId)) {
-                _.reply(msg, `<@${userId}> is not an allowed user.`);
-            } else {
-                usersToRemove.push(userId);
-            }
-        });
-    }
+        _.reply(msg, `<@${userId}> is not an allowed user.`);
+        return false;
+    });
 
     if (usersToRemove.length === 0) {
         return;
     }
 
-    const users = [];
-    usersToRemove.forEach((userId) => {
+    const users = usersToRemove.map((userId) => {
         log(`${_.userName(msg.author)} removed ${userId} from allowed users.`);
         settings.allowedUsers.splice(settings.allowedUsers.indexOf(userId), 1);
 
         const user = client.users.get(userId);
-        users.push(user ? _.userName(user) : userId);
+        return user ? _.userName(user) : userId;
     });
 
     saveSettings();
