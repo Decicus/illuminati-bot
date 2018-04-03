@@ -12,7 +12,7 @@ const botAuthUrl = `https://discordapp.com/oauth2/authorize?client_id=${config.d
 
 let ignore = {
     channels: [],
-    users: []
+    users: [],
 };
 const readIgnore = _.readFile(config.settings.ignore);
 if (readIgnore !== false) {
@@ -21,7 +21,7 @@ if (readIgnore !== false) {
 }
 
 let settings = {
-    allowedUsers: []
+    allowedUsers: [],
 };
 const readSettings = _.readFile(config.settings.settings);
 if (readSettings !== false) {
@@ -199,6 +199,15 @@ commands.ignorechannel = (msg) => {
 };
 
 /**
+ * Replies with the bot authentication URL.
+ *
+ * @param {Object} msg Discord.js Message object
+ */
+commands.invite = (msg) => {
+    _.reply(msg, `Invite URL: ${botAuthUrl}`);
+};
+
+/**
  * Removes a channel from the channel ignore list.
  */
 commands.unignorechannel = (msg) => {
@@ -309,7 +318,7 @@ const handleMessage = (msg, after) => {
     const msgMentions = {
         channels: {},
         roles: {},
-        users: {}
+        users: {},
     };
 
     let content = msg.content;
@@ -346,7 +355,7 @@ const handleMessage = (msg, after) => {
         msgMentions.users[id] = {
             id,
             username,
-            discriminator
+            discriminator,
         };
     });
 
@@ -363,16 +372,16 @@ const handleMessage = (msg, after) => {
         attachments: {},
         channel: {
             id: channel.id,
-            name: channel.name
+            name: channel.name,
         },
         mentions: msgMentions,
         messageMeta: {
             content: msg.content,
-            cleanContent: msg.cleanContent
+            cleanContent: msg.cleanContent,
         },
         server: {
             id: server.id,
-            name: server.name
+            name: server.name,
         },
         user: {
             avatar: user.avatar,
@@ -382,22 +391,22 @@ const handleMessage = (msg, after) => {
             defaultAvatarUrl: user.defaultAvatarURL,
             discriminator: user.discriminator,
             id: user.id,
-            name: user.username
-        }
+            name: user.username,
+        },
     };
 
     msg.attachments.forEach((att) => {
         data.attachments[att.id] = {
             name: att.filename,
             url: att.url,
-            size: att.filesize
+            size: att.filesize,
         };
     });
 
     const key = datastore.key([messageKind, `${msg.id}-${timestamp}`]);
     datastore.insert({
         key,
-        data
+        data,
     }, (err) => {
         if (err) {
             log(`Unable to save message from ${_.userName(user)} ${user.id}: ${msg.cleanContent}`, 'error');
@@ -421,7 +430,7 @@ client.on('message', (msg) => {
     }
 
     const message = msg.content;
-    const split = message.split(" ");
+    const split = message.split(' ');
 
     const prefix = config.settings.cmdPrefix || '!';
     const prefixLen = prefix.length;
@@ -450,14 +459,16 @@ client.on('ready', () => {
 
     if (config.discord.showAsOffline === true) {
         client.user.setPresence({
-            status: 'invisible'
+            status: 'invisible',
         });
     }
 });
 
-client.login(config.discord.token).then(() => {
-    const user = client.user;
-});
+client
+    .login(config.discord.token)
+    .catch((error) => {
+        log(error, 'error');
+    });
 
 /**
  * Web interface
@@ -485,7 +496,7 @@ passport.use(new DiscordStrategy({
     clientID: auth.clientId,
     clientSecret: auth.clientSecret,
     callbackURL: auth.redirectUri,
-    scope: scopes
+    scope: scopes,
 }, (accessToken, refreshToken, profile, done) => {
     return done(null, profile);
 }));
@@ -493,7 +504,7 @@ passport.use(new DiscordStrategy({
 web.use(session({
     secret: auth.clientSecret,
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
 }));
 web.use(passport.initialize());
 web.use(passport.session());
@@ -511,7 +522,7 @@ web.use('/static', express.static(__dirname + '/static'));
  */
 web.get('/', (req, res) => {
     const data = {
-        page: 'Home'
+        page: 'Home',
     };
 
     data.user = req.session.passport && req.session.passport.user ? req.session.passport.user : null;
@@ -522,7 +533,7 @@ web.get('/', (req, res) => {
 web.get('/auth/discord', passport.authenticate('discord', {scope: scopes}), () => {});
 
 web.get('/auth/discord/callback', passport.authenticate('discord', {
-    failureRedirect: '/'
+    failureRedirect: '/',
 }), (req, res) => {
     res.redirect('/');
 });
@@ -539,7 +550,7 @@ const api = express.Router();
 api.use((req, res, next) => {
     if (!req.session.passport || !req.session.passport.user) {
         _.send(res, 403, {
-            message: "Requires authentication."
+            message: 'Requires authentication.',
         });
         return;
     }
@@ -551,7 +562,7 @@ api.use((req, res, next) => {
 
     if (!allowedUser && !isAdmin) {
         _.send(res, 403, {
-            message: `${user.username}#${user.discriminator} does not have access.`
+            message: `${user.username}#${user.discriminator} does not have access.`,
         });
         return;
     }
@@ -575,38 +586,38 @@ api.get('/channels', (req, res) => {
             name,
             guild: {
                 id: g.id,
-                name: g.name
-            }
+                name: g.name,
+            },
         };
     });
 
     _.send(res, 200, {
-        channels: validChannels
+        channels: validChannels,
     });
 });
 
 api.get('/message', (req, res) => {
     const q = req.query;
-    const id = q.id || "";
+    const id = q.id || '';
 
     if (id.length === 0) {
         _.send(res, 400, {
-            message: "A message ID has to be specified."
+            message: 'A message ID has to be specified.',
         });
         return;
     }
 
-    const [messageId, timestamp] = id.split("_");
+    const [messageId, timestamp] = id.split('_');
 
     const query = datastore.createQuery(messageKind)
-                    .filter('id', '=', messageId)
-                    .filter('timestamp', '=', parseInt(timestamp));
+        .filter('id', '=', messageId)
+        .filter('timestamp', '=', parseInt(timestamp));
 
     datastore.runQuery(query, (err, messages) => {
         if (err) {
             log(err, 'error');
             _.send(res, 500, {
-                message: "An error occurred and has been logged."
+                message: 'An error occurred and has been logged.',
             });
 
             return;
@@ -614,22 +625,22 @@ api.get('/message', (req, res) => {
 
         _.send(res, 200, {
             count: messages.length,
-            messages: messages
+            messages: messages,
         });
     });
 });
 
 api.get('/messages', (req, res) => {
     const q = req.query;
-    let user = q.user || "";
-    let channel = q.channel || "";
+    let user = q.user || '';
+    let channel = q.channel || '';
     const limit = q.limit ? parseInt(q.limit) : 25;
     const offset = q.offset ? parseInt(q.offset) : 0;
     const max = config.settings.express.maxLimit || 50;
 
     if (limit > max) {
         _.send(res, 400, {
-            message: `The "limit" specified (${limit}) is higher than maximum (${max}) allowed.`
+            message: `The "limit" specified (${limit}) is higher than maximum (${max}) allowed.`,
         });
 
         return;
@@ -640,7 +651,7 @@ api.get('/messages', (req, res) => {
 
     if (user.length === 0 && channel.length === 0) {
         _.send(res, 400, {
-            message: "Either a Discord channel ID or a Discord user ID (or both) has to be specified."
+            message: 'Either a Discord channel ID or a Discord user ID (or both) has to be specified.',
         });
 
         return;
@@ -657,17 +668,17 @@ api.get('/messages', (req, res) => {
     }
 
     query = query
-            .offset(offset)
-            .limit(limit)
-            .order('timestamp', {
-                descending: true
-            });
+        .offset(offset)
+        .limit(limit)
+        .order('timestamp', {
+            descending: true,
+        });
 
     datastore.runQuery(query, (err, messages) => {
         if (err) {
             log(err, 'error');
             _.send(res, 500, {
-                message: "An error occurred and has been logged."
+                message: 'An error occurred and has been logged.',
             });
 
             return;
@@ -675,14 +686,14 @@ api.get('/messages', (req, res) => {
 
         _.send(res, 200, {
             count: messages.length,
-            messages: messages
+            messages: messages,
         });
     });
 });
 
 api.get('/*', (req, res) => {
     _.send(res, 404, {
-        message: "Route not found"
+        message: 'Route not found',
     });
 });
 
@@ -702,15 +713,15 @@ if (expressConf.enabled) {
 process.on('SIGINT', () => {
     log('Logging out of Discord and shutting down process.');
     client
-    .destroy()
-    .catch((err) => {
-        if (err) {
-            log(err, 'error');
-        }
+        .destroy()
+        .catch((err) => {
+            if (err) {
+                log(err, 'error');
+            }
 
-        process.exit(1);
-    })
-    .then(() => {
-        process.exit(0);
-    });
+            process.exit(1);
+        })
+        .then(() => {
+            process.exit(0);
+        });
 });
