@@ -112,6 +112,11 @@ config.settings = {
     },
 
     /**
+     * API tokens that do not require any other authentication.
+     */
+    apiTokens: [],
+
+    /**
      * Express-related settings.
      *
      * @type {Object}

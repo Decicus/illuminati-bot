@@ -561,6 +561,16 @@ web.get('/auth/logout', function(req, res) {
  */
 const api = express.Router();
 api.use((req, res, next) => {
+    /**
+     * Extremely basic API token authentication
+     */
+    const apiTokens = config.settings.apiTokens || [];
+    const token = req.get('Api-Token');
+    if (token && apiTokens.includes(token.trim())) {
+        next();
+        return;
+    }
+
     if (!req.session.passport || !req.session.passport.user) {
         _.send(res, 403, {
             message: 'Requires authentication.',
