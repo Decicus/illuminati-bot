@@ -58,7 +58,7 @@ config.discord = {
      *
      * @type {String}
      */
-    token: ''
+    token: '',
 };
 
 /**
@@ -68,7 +68,7 @@ config.discord = {
  */
 config.gcloud = {
     projectId: 'grape-spaceship-123',
-    keyFilename: '/path/to/key.json'
+    keyFilename: '/path/to/key.json',
 };
 
 /**
@@ -99,6 +99,19 @@ config.settings = {
     settings: __dirname + '/data/settings.json',
 
     /**
+     * Guilds and channels that are "forbidden" to request messages for.
+     * These guild IDs and channel IDs will not show up in the /api/channels endpoint
+     * and thus not in the web UI as well.
+     *
+     * ** Keep in mind that messages from these channels and guilds will still be logged.
+     * ** Therefore making it different from the ignore.json file.
+     */
+    forbidden: {
+        channels: [],
+        guilds: [],
+    },
+
+    /**
      * Express-related settings.
      *
      * @type {Object}
@@ -123,7 +136,7 @@ config.settings = {
          *
          * @type {Number}
          */
-        maxLimit: 50
+        maxLimit: 50,
     },
 
     /**
@@ -133,8 +146,8 @@ config.settings = {
      */
     gcloud: {
         logs: 'logs',
-        messages: 'messages'
-    }
+        messages: 'messages',
+    },
 };
 
 module.exports = config;

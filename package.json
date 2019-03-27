@@ -1,6 +1,6 @@
 {
   "name": "illuminati-bot",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Logs Discord chats",
   "main": "app.js",
   "scripts": {
@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/Decicus/illuminati-bot#readme",
   "dependencies": {
-    "@google-cloud/datastore": "^1.4.0",
+    "@google-cloud/datastore": "^2.0.0",
     "discord.js": "^11.0.0",
     "express": "^4.15.2",
     "express-session": "^1.15.2",

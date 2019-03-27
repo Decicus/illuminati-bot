@@ -1,7 +1,9 @@
 # illuminati-bot
+
 Logs Discord chats... and a few other things.
 
 ## Setup
+
 - Setup [Google Cloud Datastore](https://console.cloud.google.com/datastore/).
 - Setup [node & npm](https://nodejs.org/) - I recommend LTS (at the time of writing: v6.x.x).
 - Install dependencies using `npm install`.
@@ -18,7 +20,8 @@ Logs Discord chats... and a few other things.
     - Copy `ignore.sample.json` to `ignore.json`.
     - Copy `settings.sample.json` to `settings.json`.
         - I recommend opening `settings.json` in your favorite text editor and removing all the user IDs for `allowedUsers`.
-- Run the bot using `node app.js`, or alternatively use [pm2](http://pm2.keymetrics.io/).
+- Run the bot using `node app.js`, or alternatively use [pm2](https://pm2.keymetrics.io/).
 
 ## License
+
 [MIT License](LICENSE.md)

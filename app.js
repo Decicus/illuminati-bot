@@ -20,6 +20,19 @@ if (readIgnore !== false) {
     log(`Successfully read the ignore file (${config.settings.ignore}).`);
 }
 
+/**
+ * Create placeholder values in case of missing entries in config.
+ * See `config.settings.forbidden` for description of this feature.
+ */
+let forbidden = {
+    channels: [],
+    guilds: [],
+};
+
+if (config.settings.forbidden) {
+    forbidden = config.settings.forbidden;
+}
+
 let settings = {
     allowedUsers: [],
 };
@@ -575,11 +588,23 @@ api.get('/channels', (req, res) => {
     const validChannels = {};
 
     channels.forEach((chan) => {
-        if (chan.type !== 'text' || ignore.channels.includes(chan.id)) {
+        const id = chan.id;
+        /**
+         * Ignore messages that aren't in text channels in a guild, or otherwise ignored channels.
+         */
+        if (chan.type !== 'text' || ignore.channels.includes(id) || forbidden.channels.includes(id)) {
             return;
         }
 
-        const {id, name} = chan;
+        /**
+         * Ignore channels that are in a "forbidden guild".
+         */
+        const guildId = chan.guild.id;
+        if (forbidden.guilds.includes(guildId)) {
+            return;
+        }
+
+        const {name} = chan;
         const g = chan.guild;
 
         validChannels[id] = {
@@ -683,6 +708,17 @@ api.get('/messages', (req, res) => {
 
             return;
         }
+
+        /**
+         * Make sure to exclude messages that are part of 'forbidden' channels.
+         */
+        messages = messages.filter((message) => {
+            const { channels, guilds } = forbidden;
+            const channelId = message.channel.id;
+            const serverId = message.server.id;
+
+            return !channels.includes(channelId) && !guilds.includes(serverId);
+        });
 
         _.send(res, 200, {
             count: messages.length,
