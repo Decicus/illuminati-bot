@@ -336,6 +336,11 @@ const handleMessage = (msg, after) => {
         return;
     }
 
+    const guild = msg.guild.id;
+    if (ignore.servers.includes(guild)) {
+        return;
+    }
+
     const mentions = msg.mentions;
     const msgMentions = {
         channels: {},
@@ -619,7 +624,7 @@ api.get('/channels', (req, res) => {
          * Ignore channels that are in a "forbidden guild".
          */
         const guildId = chan.guild.id;
-        if (forbidden.guilds.includes(guildId)) {
+        if (forbidden.guilds.includes(guildId) || ignore.servers.includes(guildId)) {
             return;
         }
 
