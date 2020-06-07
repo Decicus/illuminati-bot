@@ -12,6 +12,7 @@ const botAuthUrl = `https://discordapp.com/oauth2/authorize?client_id=${config.d
 
 let ignore = {
     channels: [],
+    categories: [],
     servers: [],
     users: [],
 };
@@ -27,6 +28,14 @@ if (readIgnore !== false) {
  */
 if (!ignore.servers) {
     ignore.servers = [];
+}
+
+/**
+ * * Backwards compatibility
+ * Versions prior to 0.3.0 did not have `categories` field (channel categories in guilds) in `ignore.json`.
+ */
+if (!ignore.categories) {
+    ignore.categories = [];
 }
 
 /**
@@ -336,8 +345,13 @@ const handleMessage = (msg, after) => {
         return;
     }
 
-    const guild = msg.guild.id;
-    if (ignore.servers.includes(guild)) {
+    const guild = msg.guild;
+    if (ignore.servers.includes(guild.id)) {
+        return;
+    }
+
+    const category = channel.parent;
+    if (category && ignore.categories.includes(category.id)) {
         return;
     }
 
@@ -621,7 +635,15 @@ api.get('/channels', (req, res) => {
         }
 
         /**
-         * Ignore channels that are in a "forbidden guild".
+         * Ignore channels that have ignored 'parents' (channel categories).
+         */
+        const category = chan.parent;
+        if (category && ignore.categories.includes(category.id)) {
+            return;
+        }
+
+        /**
+         * Ignore channels that are in a "forbidden guild" or an ignored guild.
          */
         const guildId = chan.guild.id;
         if (forbidden.guilds.includes(guildId) || ignore.servers.includes(guildId)) {
