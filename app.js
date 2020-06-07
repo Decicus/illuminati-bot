@@ -12,12 +12,21 @@ const botAuthUrl = `https://discordapp.com/oauth2/authorize?client_id=${config.d
 
 let ignore = {
     channels: [],
+    servers: [],
     users: [],
 };
 const readIgnore = _.readFile(config.settings.ignore);
 if (readIgnore !== false) {
     ignore = JSON.parse(readIgnore);
     log(`Successfully read the ignore file (${config.settings.ignore}).`);
+}
+
+/**
+ * * Backwards compatibility
+ * Versions prior to 0.3.0 did not have `servers` field in `ignore.json`.
+ */
+if (!ignore.servers) {
+    ignore.servers = [];
 }
 
 /**
