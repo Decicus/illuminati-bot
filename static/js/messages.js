@@ -36,8 +36,8 @@ const value = (selector) => {
  */
 const error = (err) => {
     const element = $('#error');
-    if (element.hasClass('hidden')) {
-        element.removeClass('hidden');
+    if (element.hasClass('d-none')) {
+        element.removeClass('d-none');
     }
 
     element.html(err);
@@ -57,7 +57,7 @@ let updating = false;
  */
 const fetchSettings = {
     credentials: 'include',
-    method: 'GET'
+    method: 'GET',
 };
 
 /**
@@ -68,7 +68,7 @@ const fetchSettings = {
 const infoBtn = $('#info-btn')
                 .clone()
                 .removeAttr('id')
-                .removeClass('hidden');
+                .removeClass('d-none');
 
 /**
  * The modal for display message information.
@@ -82,7 +82,7 @@ const msgModal = $('#message-information');
  *
  * @type {String}
  */
-const dtFormat = "LL - LTS ([UTC]Z)";
+const dtFormat = 'LL - LTS ([UTC]Z)';
 
 /**
  * Displays more message details.
@@ -126,7 +126,7 @@ const showMessage = function() {
             const attDiv = $('#attachments', msgModal);
 
             if (Object.keys(attachments).length > 0) {
-                attDiv.removeClass('hidden');
+                attDiv.removeClass('d-none');
                 const attBody = $('#attachments tbody', msgModal);
                 $('tr', attBody).remove(); // Remove old entries
 
@@ -139,8 +139,8 @@ const showMessage = function() {
                     row.appendTo(attBody);
                 });
             } else {
-                if (!attDiv.hasClass('hidden')) {
-                    attDiv.addClass('hidden');
+                if (!attDiv.hasClass('d-none')) {
+                    attDiv.addClass('d-none');
                 }
             }
 
@@ -178,13 +178,13 @@ const update = () => {
     const count = $('#count');
     const countP = count.parent('div');
 
-    if (!messages.hasClass('hidden')) {
-        messages.addClass('hidden');
+    if (!messages.hasClass('d-none')) {
+        messages.addClass('d-none');
     }
 
     const err = $('#error');
-    if (!err.hasClass('hidden')) {
-        err.addClass('hidden');
+    if (!err.hasClass('d-none')) {
+        err.addClass('d-none');
     }
 
     $('tbody tr', messages).remove();
@@ -193,8 +193,8 @@ const update = () => {
         refresh.addClass('disabled');
     }
 
-    if (!countP.hasClass('hidden')) {
-        countP.addClass('hidden');
+    if (!countP.hasClass('d-none')) {
+        countP.addClass('d-none');
     }
 
     $('.fa', refresh).addClass('fa-spin');
@@ -240,8 +240,8 @@ const update = () => {
             $(`button#${id}_${timestamp}`).on('click', showMessage);
         });
 
-        messages.removeClass('hidden');
-        countP.removeClass('hidden');
+        messages.removeClass('d-none');
+        countP.removeClass('d-none');
         count.html(json.count);
 
         updating = false;

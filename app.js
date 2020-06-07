@@ -563,6 +563,7 @@ web.use('/static', express.static(__dirname + '/static'));
  */
 web.get('/', (req, res) => {
     const data = {
+        title: config.settings.express.title || 'Illuminati Bot',
         page: 'Home',
     };
 
@@ -613,7 +614,7 @@ api.use((req, res, next) => {
 
     if (!allowedUser && !isAdmin) {
         _.send(res, 403, {
-            message: `${user.username}#${user.discriminator} does not have access.`,
+            message: `Access denied (${user.username}#${user.discriminator})`,
         });
         return;
     }

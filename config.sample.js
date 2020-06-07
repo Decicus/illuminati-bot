@@ -142,6 +142,13 @@ config.settings = {
          * @type {Number}
          */
         maxLimit: 50,
+
+        /**
+         * Website title
+         *
+         * @type {String}
+         */
+        title: 'Illuminati Bot',
     },
 
     /**
