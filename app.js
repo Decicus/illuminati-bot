@@ -390,7 +390,7 @@ const handleMessage = (msg, after) => {
 
     mentions.users.forEach((user) => {
         const {id, username, discriminator} = user;
-        const reg = new RegExp(`<@${id}>`, 'g');
+        const reg = new RegExp(`<@(!?)${id}>`, 'g');
         content = content.replace(reg, `<${_.userName(user)} [${id}]>`);
 
         msgMentions.users[id] = {
